@@ -145,6 +145,7 @@ pip3 install -r requirements-pg.txt
 # 运行sql文件
 1.新建数据库ruoyi-fastapi(默认，可修改)
 2.如果使用的是MySQL数据库，使用命令或数据库连接工具运行sql文件夹下的ruoyi-fastapi.sql；如果使用的是PostgreSQL数据库，使用命令或数据库连接工具运行sql文件夹下的ruoyi-fastapi-pg.sql
+3.codex
 
 # 运行后端
 python3 app.py --env=dev
@@ -177,6 +178,8 @@ npm run build:prod 或 yarn build:prod
 在.env.prod文件中配置生产环境的数据库和redis
 
 # 运行后端
+redis-server
+#启动redis服务器
 python3 app.py --env=prod
 ```
 
