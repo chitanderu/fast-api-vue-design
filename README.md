@@ -141,6 +141,11 @@ pip3 install -r requirements-pg.txt
 
 # 配置环境
 在.env.dev文件中配置开发环境的数据库和redis
+redis-server
+
+
+pkill redis-server
+lsof -i :6379
 
 # 运行sql文件
 1.新建数据库ruoyi-fastapi(默认，可修改)
