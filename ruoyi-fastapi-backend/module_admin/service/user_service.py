@@ -245,6 +245,7 @@ class UserService:
             email=f"{email_local}+{random_suffix}@{email_domain}",
             sex=base_data.sex,
             status=base_data.status or '0',
+            delFlag='0',
             remark=base_data.remark,
             postIds=[int(post_id) for post_id in (base_user_detail.post_ids or [])],
             roleIds=[int(role_id) for role_id in (base_user_detail.role_ids or [])],
