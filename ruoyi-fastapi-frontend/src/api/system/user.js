@@ -27,6 +27,15 @@ export function addUser(data) {
   })
 }
 
+// 新增测试用户
+export function addTestUser(data) {
+  return request({
+    url: '/system/user/test',
+    method: 'post',
+    data: data
+  })
+}
+
 // 修改用户
 export function updateUser(data) {
   return request({

@@ -183,6 +183,22 @@ class UserDao:
         return results
 
     @classmethod
+    async def get_first_user(cls, db: AsyncSession):
+        """
+        获取第一个有效用户信息
+
+        :param db: orm对象
+        :return: 用户信息对象
+        """
+        query_user_info = (
+            (await db.execute(select(SysUser).where(SysUser.del_flag == '0').order_by(SysUser.user_id)))
+            .scalars()
+            .first()
+        )
+
+        return query_user_info
+
+    @classmethod
     async def get_user_detail_by_id(cls, db: AsyncSession, user_id: int):
         """
         根据user_id获取用户详细信息

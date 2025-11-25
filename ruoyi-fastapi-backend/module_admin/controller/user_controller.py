@@ -26,6 +26,7 @@ from module_admin.entity.vo.user_vo import (
     UserProfileModel,
     UserRoleQueryModel,
     UserRoleResponseModel,
+    TestUserModel,
 )
 from module_admin.service.login_service import LoginService
 from module_admin.service.user_service import UserService
@@ -95,6 +96,24 @@ async def add_system_user(
     logger.info(add_user_result.message)
 
     return ResponseUtil.success(msg=add_user_result.message)
+
+
+@userController.post('/test', dependencies=[Depends(CheckUserInterfaceAuth('system:user:add'))])
+@Log(title='用户管理', business_type=BusinessType.INSERT)
+async def add_test_system_user(
+    request: Request,
+    test_user: TestUserModel,
+    query_db: AsyncSession = Depends(get_db),
+    current_user: CurrentUserModel = Depends(LoginService.get_current_user),
+    user_data_scope_sql: str = Depends(GetDataScope('SysUser')),
+    dept_data_scope_sql: str = Depends(GetDataScope('SysDept')),
+):
+    test_user_result = await UserService.add_test_user_services(
+        request, query_db, current_user, test_user, user_data_scope_sql, dept_data_scope_sql
+    )
+    logger.info(test_user_result.message)
+
+    return ResponseUtil.success(data=test_user_result.result, msg=test_user_result.message)
 
 
 @userController.put('', dependencies=[Depends(CheckUserInterfaceAuth('system:user:edit'))])
