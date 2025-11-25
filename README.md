@@ -186,6 +186,13 @@ npm run build:prod 或 yarn build:prod
 redis-server
 #启动redis服务器
 python3 app.py --env=prod
+
+redis-server
+
+
+pkill redis-server
+lsof -i :6379
+
 ```
 
 ## 交流与赞助
