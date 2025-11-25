@@ -106,6 +106,17 @@
               </el-col>
               <el-col :span="1.5">
                 <el-button
+                  type="primary"
+                  plain
+                  icon="Plus"
+                  :loading="testUserLoading"
+                  @click="handleAddTestUser"
+                  v-hasPermi="['system:user:add']"
+                  >新增测试用户</el-button
+                >
+              </el-col>
+              <el-col :span="1.5">
+                <el-button
                   type="success"
                   plain
                   icon="Edit"
@@ -511,6 +522,7 @@ import {
   getUser,
   updateUser,
   addUser,
+  addTestUser,
   deptTreeSelect,
 } from "@/api/system/user";
 import { Splitpanes, Pane } from "splitpanes";
@@ -540,6 +552,7 @@ const enabledDeptOptions = ref(undefined);
 const initPassword = ref(undefined);
 const postOptions = ref([]);
 const roleOptions = ref([]);
+const testUserLoading = ref(false);
 /*** 用户导入参数 */
 const upload = reactive({
   // 是否显示弹出层（用户导入）
@@ -854,6 +867,30 @@ function handleAdd() {
     title.value = "添加用户";
     form.value.password = initPassword.value;
   });
+}
+
+/** 新增测试用户 */
+function handleAddTestUser() {
+  if (!userList.value.length) {
+    proxy.$modal.msgError("请先确保列表中存在可用于复制的用户。");
+    return;
+  }
+  const baseUserId = userList.value[0].userId;
+  proxy
+    .$modal
+    .confirm("是否确认基于列表首个用户生成测试账号？")
+    .then(() => {
+      testUserLoading.value = true;
+      addTestUser({ baseUserId })
+        .then((response) => {
+          proxy.$modal.msgSuccess(response.msg || "新增测试用户成功");
+          getList();
+        })
+        .finally(() => {
+          testUserLoading.value = false;
+        });
+    })
+    .catch(() => {});
 }
 /** 修改按钮操作 */
 function handleUpdate(row) {

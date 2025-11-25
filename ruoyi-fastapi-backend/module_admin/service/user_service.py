@@ -1,9 +1,11 @@
 import io
 import pandas as pd
+import random
+import string
 from datetime import datetime
 from fastapi import Request, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Union
+from typing import List, Optional, Union
 from config.constant import CommonConstant
 from exceptions.exception import ServiceException
 from module_admin.dao.user_dao import UserDao
@@ -26,6 +28,7 @@ from module_admin.entity.vo.user_vo import (
     UserRoleModel,
     UserRoleQueryModel,
     UserRoleResponseModel,
+    TestUserModel,
 )
 from module_admin.service.config_service import ConfigService
 from module_admin.service.dept_service import DeptService
@@ -175,6 +178,88 @@ class UserService:
             except Exception as e:
                 await query_db.rollback()
                 raise e
+
+    @classmethod
+    async def add_test_user_services(
+        cls,
+        request: Request,
+        query_db: AsyncSession,
+        current_user: CurrentUserModel,
+        test_user: Optional[TestUserModel],
+        user_data_scope_sql: str,
+        dept_data_scope_sql: str,
+    ):
+        """
+        快速生成测试用户service
+
+        :param request: Request对象
+        :param query_db: orm对象
+        :param current_user: 当前用户对象
+        :param test_user: 测试用户参数
+        :param user_data_scope_sql: 用户数据权限sql
+        :param dept_data_scope_sql: 部门数据权限sql
+        :return: 新增用户结果
+        """
+
+        if test_user and test_user.base_user_id is not None:
+            if not current_user.user.admin:
+                await cls.check_user_data_scope_services(query_db, test_user.base_user_id, user_data_scope_sql)
+            base_user_id = test_user.base_user_id
+        else:
+            base_user_list = await cls.get_user_list_services(
+                query_db, UserPageQueryModel(page_num=1, page_size=1), user_data_scope_sql, is_page=True
+            )
+            base_user_id = base_user_list.rows[0].get('userId') if base_user_list.rows else None
+
+        if base_user_id is None:
+            raise ServiceException(message='暂无可用的基础用户用于生成测试账号')
+
+        base_user_detail = await cls.user_detail_services(query_db, base_user_id)
+
+        if not base_user_detail.data:
+            raise ServiceException(message='未找到可用的基础用户信息')
+
+        base_data = base_user_detail.data
+        if not current_user.user.admin and base_data.dept_id:
+            await DeptService.check_dept_data_scope_services(query_db, base_data.dept_id, dept_data_scope_sql)
+
+        random_suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
+        random_phone_suffix = random.randint(100000000, 999999999)
+        init_password = await ConfigService.query_config_list_from_cache_services(
+            request.app.state.redis, 'sys.user.initPassword'
+        )
+        init_password = init_password.decode() if isinstance(init_password, (bytes, bytearray)) else init_password
+        init_password = init_password or '123456'
+
+        base_email = base_data.email or 'test@example.com'
+        local, _, domain = base_email.partition('@')
+        email_local = local or 'test'
+        email_domain = domain or 'example.com'
+
+        add_user = AddUserModel(
+            deptId=base_data.dept_id,
+            userName=f"test_{datetime.now().strftime('%Y%m%d%H%M%S')}_{random_suffix}",
+            nickName=f"测试用户{random_suffix}",
+            password=PwdUtil.get_password_hash(init_password),
+            phonenumber=f"86{random_phone_suffix:09d}",
+            email=f"{email_local}+{random_suffix}@{email_domain}",
+            sex=base_data.sex,
+            status=base_data.status or '0',
+            delFlag='0',
+            remark=base_data.remark,
+            postIds=[int(post_id) for post_id in (base_user_detail.post_ids or [])],
+            roleIds=[int(role_id) for role_id in (base_user_detail.role_ids or [])],
+            userType=base_data.user_type,
+            createBy=current_user.user.user_name,
+            createTime=datetime.now(),
+            updateBy=current_user.user.user_name,
+            updateTime=datetime.now(),
+        )
+        add_user.validate_fields()
+        result = await cls.add_user_services(query_db, add_user)
+        result.result = dict(userName=add_user.user_name, nickName=add_user.nick_name, phonenumber=add_user.phonenumber)
+
+        return result
 
     @classmethod
     async def edit_user_services(cls, query_db: AsyncSession, page_object: EditUserModel):

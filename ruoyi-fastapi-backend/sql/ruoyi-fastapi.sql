@@ -655,7 +655,26 @@ insert into sys_notice values('2', '维护通知：2018-07-01 vfadmin系统凌�
 
 
 -- ----------------------------
--- 18、代码生成业务表
+-- 18、个人笔记表
+-- ----------------------------
+drop table if exists sys_user_note;
+create table sys_user_note (
+  note_id bigint(20) not null auto_increment comment '笔记ID',
+  user_id bigint(20) not null comment '用户ID',
+  content longtext not null comment '笔记内容',
+  del_flag char(1) default '0' comment '删除标志（0代表存在 2代表删除）',
+  create_by varchar(64) default null comment '创建者',
+  create_time datetime default null comment '创建时间',
+  update_by varchar(64) default null comment '更新者',
+  update_time datetime default null comment '更新时间',
+  remark varchar(500) default null comment '备注',
+  primary key (note_id),
+  key idx_note_user (user_id)
+) engine=innodb default charset=utf8mb4 comment='用户个人笔记表';
+
+
+-- ----------------------------
+-- 19、代码生成业务表
 -- ----------------------------
 drop table if exists gen_table;
 create table gen_table (
@@ -685,7 +704,7 @@ create table gen_table (
 
 
 -- ----------------------------
--- 19、代码生成业务表字段
+-- 20、代码生成业务表字段
 -- ----------------------------
 drop table if exists gen_table_column;
 create table gen_table_column (

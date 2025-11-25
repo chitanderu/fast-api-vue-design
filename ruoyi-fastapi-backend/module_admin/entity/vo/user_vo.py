@@ -234,6 +234,16 @@ class DeleteUserModel(BaseModel):
     update_time: Optional[datetime] = Field(default=None, description='更新时间')
 
 
+class TestUserModel(BaseModel):
+    """
+    生成测试用户模型
+    """
+
+    model_config = ConfigDict(alias_generator=to_camel)
+
+    base_user_id: Optional[int] = Field(default=None, description='用于克隆信息的基础用户ID')
+
+
 class UserRoleQueryModel(UserModel):
     """
     用户角色关联管理不分页查询模型
