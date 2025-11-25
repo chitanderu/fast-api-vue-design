@@ -858,7 +858,35 @@ insert into sys_notice values(1, '温馨提醒：2018-07-01 vfadmin新版本发�
 insert into sys_notice values(2, '维护通知：2018-07-01 vfadmin系统凌晨维护', '1', '维护内容',   '0', 'admin', current_timestamp, '', null, '管理员');
 
 -- ----------------------------
--- 18、代码生成业务表
+-- 18、个人笔记表
+-- ----------------------------
+drop table if exists sys_user_note;
+create table sys_user_note (
+    note_id bigserial not null,
+    user_id bigint not null,
+    content text not null,
+    del_flag char(1) default '0',
+    create_by varchar(64) default null,
+    create_time timestamp(0),
+    update_by varchar(64) default null,
+    update_time timestamp(0),
+    remark varchar(500) default null,
+    primary key (note_id)
+);
+create index idx_sys_user_note_user on sys_user_note(user_id);
+comment on column sys_user_note.note_id is '笔记ID';
+comment on column sys_user_note.user_id is '用户ID';
+comment on column sys_user_note.content is '笔记内容';
+comment on column sys_user_note.del_flag is '删除标志（0代表存在 2代表删除）';
+comment on column sys_user_note.create_by is '创建者';
+comment on column sys_user_note.create_time is '创建时间';
+comment on column sys_user_note.update_by is '更新者';
+comment on column sys_user_note.update_time is '更新时间';
+comment on column sys_user_note.remark is '备注';
+comment on table sys_user_note is '用户个人笔记表';
+
+-- ----------------------------
+-- 19、代码生成业务表
 -- ----------------------------
 drop table if exists gen_table;
 create table gen_table (
@@ -909,7 +937,7 @@ comment on column gen_table.remark is '备注';
 comment on table gen_table is '代码生成业务表';
 
 -- ----------------------------
--- 19、代码生成业务表字段
+-- 20、代码生成业务表字段
 -- ----------------------------
 drop table if exists gen_table_column;
 create table gen_table_column (

@@ -83,6 +83,18 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
+  },
+  {
+    path: '/note',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/system/note/index'),
+        name: 'UserNote',
+        meta: { title: '我的笔记', icon: 'edit' }
+      }
+    ]
   }
 ]
 

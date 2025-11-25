@@ -20,6 +20,7 @@ from module_admin.controller.notice_controller import noticeController
 from module_admin.controller.online_controller import onlineController
 from module_admin.controller.post_controler import postController
 from module_admin.controller.role_controller import roleController
+from module_admin.controller.note_controller import noteController
 from module_admin.controller.server_controller import serverController
 from module_admin.controller.user_controller import userController
 from module_generator.controller.gen_controller import genController
@@ -71,6 +72,7 @@ controller_list = [
     {'router': postController, 'tags': ['系统管理-岗位管理']},
     {'router': dictController, 'tags': ['系统管理-字典管理']},
     {'router': configController, 'tags': ['系统管理-参数管理']},
+    {'router': noteController, 'tags': ['系统管理-个人笔记']},
     {'router': noticeController, 'tags': ['系统管理-通知公告管理']},
     {'router': logController, 'tags': ['系统管理-日志管理']},
     {'router': onlineController, 'tags': ['系统监控-在线用户']},
